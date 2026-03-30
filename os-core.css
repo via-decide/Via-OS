@@ -1,0 +1,551 @@
+/* css/os-core.css — VIA Spatial OS v2 */
+
+/* ════════════════════════════════════════════════════════════
+   BASE
+   ════════════════════════════════════════════════════════════ */
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #000000;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  --brand-saffron: #ff671f;
+  --matrix-green: #00ff96;
+}
+
+/* ════════════════════════════════════════════════════════════
+   WINDOW MANAGER (Split-Screen)
+   ════════════════════════════════════════════════════════════ */
+.window-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  height: 100vh;
+  padding: 10px;
+  padding-bottom: 320px; /* CLEARANCE FOR THUMB GRID */
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.glass-window {
+  background: rgba(10, 15, 12, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--matrix-green);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: warp-in-panel 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.window-header {
+  height: 30px;
+  border-bottom: 1px solid rgba(0, 255, 150, 0.2);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  align-items: center;
+  font-size: 12px;
+  background: rgba(0,0,0,0.3);
+}
+
+.header-title {
+  color: var(--matrix-green);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.header-close-btn {
+  color: rgba(255, 90, 70, 0.8);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 5px;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.header-close-btn:active, .header-close-btn:hover {
+  color: rgba(255, 90, 70, 1);
+  transform: scale(1.1);
+}
+
+.window-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  position: relative;
+}
+
+@keyframes warp-in-panel {
+  0% { transform: scale(0.9); opacity: 0; transform-origin: center bottom; }
+  100% { transform: scale(1); opacity: 1; transform-origin: center bottom; }
+}
+
+.warp-transition {
+  will-change: transform, opacity;
+}
+
+.warp-out {
+  transform: scale(0) !important;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.warp-in {
+  transform: scale(1) !important;
+  opacity: 1;
+  text-shadow: 0 0 30px var(--matrix-green);
+  transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Z-axis transitions override — slower, more dramatic scale curve
+   Applied temporarily by JS triggerZTransition() */
+#spatial-canvas.z-transition-descend {
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#spatial-canvas.z-transition-ascend {
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ════════════════════════════════════════════════════════════
+   OS NODES
+   ════════════════════════════════════════════════════════════ */
+.os-node {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.os-node h2 {
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  color: #e8eaef;
+  font-size: 26px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px 32px;
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+/* Nodes are injected and positioned dynamically via inline styles by SpatialMatrix */
+
+/* ════════════════════════════════════════════════════════════
+   HUD — ROOM NAME PANEL (top center)
+   ════════════════════════════════════════════════════════════ */
+#hud-room-name-panel {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 1000;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#hud-room-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.3px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+#hud-room-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+  letter-spacing: 0.1px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   HUD — HOLOGRAPHIC MINIMAP (bottom center)
+   ════════════════════════════════════════════════════════════ */
+#os-minimap {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 20px) + 30px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background: rgba(2, 2, 5, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 255, 150, 0.2);
+  border-radius: 32px;
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hud-dot {
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  place-self: center;
+}
+
+.hud-dot.active {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 8px rgba(0, 255, 100, 0.8);
+}
+
+.sigil-recognition {
+  transform: translateX(-50%) scale(1.1) !important;
+  filter: brightness(1.3);
+  border-color: var(--brand-saffron) !important;
+  transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+  animation: sigil-pulse 0.4s ease-in-out;
+}
+
+@keyframes sigil-pulse {
+  0% { box-shadow: 0 0 10px rgba(255, 103, 31, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(255, 103, 31, 0.6); }
+  100% { box-shadow: 0 0 10px rgba(255, 103, 31, 0.2); }
+}
+
+/* Depth label below minimap */
+#hud-depth-label {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 1001;
+  transition: color 0.3s ease;
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ACCESS NODES (IN-ROOM NAVIGATION)
+   ════════════════════════════════════════════════════════════ */
+.node-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px;
+}
+
+.access-node {
+  background: rgba(4, 10, 6, 0.6);
+  border: 1px solid var(--matrix-green);
+  padding: 16px;
+  color: var(--matrix-green);
+  text-transform: uppercase;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 255, 150, 0.1);
+}
+
+.access-node:active, .access-node:hover {
+  background: var(--matrix-green);
+  color: #000;
+  transform: scale(0.95);
+  box-shadow: 0 0 20px rgba(0, 255, 150, 0.4);
+}
+
+/* ════════════════════════════════════════════════════════════
+   HUD — CONCLUDE (top right)
+   ════════════════════════════════════════════════════════════ */
+#btn-conclude-mission {
+  position: fixed;
+  top: 20px;
+  right: 16px;
+  background: rgba(255, 90, 70, 0.12);
+  border: 1px solid rgba(255, 90, 70, 0.4);
+  color: rgba(255, 110, 90, 1);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 9px 16px;
+  border-radius: 100px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  transition: background 0.2s ease, transform 0.1s ease;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#btn-conclude-mission:hover {
+  background: rgba(255, 90, 70, 0.22);
+  box-shadow: 0 0 20px rgba(255, 90, 70, 0.3);
+}
+
+#btn-conclude-mission:active {
+  transform: scale(0.95);
+}
+
+/* ════════════════════════════════════════════════════════════
+   INSTALL CTA — .btn-glitch (inside install trap)
+   ════════════════════════════════════════════════════════════ */
+.btn-glitch {
+  display: none; /* shown by install-manager.js on beforeinstallprompt */
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 18px 40px;
+  background: rgba(0, 255, 150, 0.08);
+  border: 1px solid rgba(0, 255, 150, 0.5);
+  color: #00ff96;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  border-radius: 100px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 0 24px rgba(0, 255, 150, 0.2);
+  animation: glitch-idle 4s infinite;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-glitch:active {
+  transform: scale(0.97);
+  background: rgba(0, 255, 150, 0.18);
+}
+
+@keyframes glitch-idle {
+  0%, 88%, 100% {
+    box-shadow: 0 0 24px rgba(0, 255, 150, 0.25);
+    text-shadow: none;
+  }
+  90% {
+    text-shadow: -2px 0 #ff00ea, 2px 0 #00eaff;
+    box-shadow: 0 0 36px rgba(0, 255, 150, 0.55);
+  }
+  92% {
+    text-shadow: 2px 0 #ff00ea, -2px 0 #00eaff;
+  }
+  94% {
+    text-shadow: -1px 0 #00eaff;
+  }
+  96% {
+    text-shadow: none;
+    box-shadow: 0 0 24px rgba(0, 255, 150, 0.25);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PDF RENDER ZONE
+   Hidden overlay; shown during window.print() call.
+   ════════════════════════════════════════════════════════════ */
+#pdf-render-zone {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #020205; /* Cyberpunk Mission Report */
+  color: #ffffff;
+  z-index: 999999;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 60px 40px;
+  box-sizing: border-box;
+  font-family: 'JetBrains Mono', 'Sora', monospace;
+}
+
+.pdf-page {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.pdf-logo {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+.pdf-page h1 {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.pdf-date {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.pdf-page hr {
+  border: none;
+  border-top: 2px solid #111;
+  margin: 24px 0;
+}
+
+.pdf-body h2 {
+  font-size: 20px;
+  margin: 0 0 6px;
+  color: #222;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.pdf-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.traversal-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.traversal-log li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 15px;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.log-index {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 600;
+  min-width: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.log-time {
+  color: #999;
+  font-size: 13px;
+}
+
+.pdf-footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+  color: #aaa;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.8;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PRINT MEDIA — High Contrast Souvenir Mode
+   ════════════════════════════════════════════════════════════ */
+@media print {
+  body * { display: none !important; }
+
+  #pdf-render-zone {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: visible !important;
+    padding: 40px !important;
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pdf-page {
+    max-width: 100%;
+    background: white;
+  }
+
+  .traversal-log li {
+    page-break-inside: avoid;
+    border-color: rgba(255,255,255,0.1);
+    color: #ffffff !important;
+  }
+
+  .pdf-logo, .pdf-page h1 { color: #00ff96 !important; }
+  .pdf-date, .pdf-subtitle { color: rgba(255,255,255,0.5) !important; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   BRAND ENHANCEMENTS
+   ════════════════════════════════════════════════════════════ */
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--brand-saffron), transparent);
+  box-shadow: 0 0 15px var(--brand-saffron);
+  z-index: 10000;
+  pointer-events: none;
+}
+.debug-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(2, 2, 5, 0.9);
+  color: #00ff88;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 10px;
+  z-index: 100000;
+  pointer-events: none;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  line-height: 1.4;
+}

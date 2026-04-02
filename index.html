@@ -3,7 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>DAXINI SPACE // Spatial OS</title>
+  <title>Daxini.space — Prompt App Store and AI Tool Directory for LogicHub Apps</title>
+  <meta name="description" content="Daxini.space is a prompt app store and AI tool directory for LogicHub apps, ViaDecide tools, and free-tier community apps. Open one app and the surrounding grid refreshes with related apps.">
+  <link rel="canonical" href="https://daxini.space/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Daxini.space — Prompt App Store and AI Tool Directory for LogicHub Apps">
+  <meta property="og:description" content="Browse prompt apps, AI tools, and free-tier LogicHub community apps in a spatial app store that refreshes related routes around every app you open.">
+  <meta property="og:url" content="https://daxini.space/">
+  <meta property="og:site_name" content="Daxini.space">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Daxini.space — Prompt App Store and AI Tool Directory for LogicHub Apps">
+  <meta name="twitter:description" content="Spatial discovery for prompt apps, AI tools, and free-tier LogicHub community apps. Open any app to refresh related routes.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Daxini.space",
+    "url": "https://daxini.space/",
+    "description": "Daxini.space is a prompt app store and AI tool directory for LogicHub apps, ViaDecide tools, and free-tier community apps.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Daxini.space",
+      "url": "https://daxini.space/"
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "SoftwareApplication",
+          "position": 1,
+          "name": "LogicHub",
+          "url": "https://logichub.app/",
+          "applicationCategory": "DeveloperApplication"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "position": 2,
+          "name": "Prompt Alchemy",
+          "url": "https://via-decide.github.io/PromptAlchemy/",
+          "applicationCategory": "BusinessApplication"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "position": 3,
+          "name": "Daxini HQ",
+          "url": "https://daxini.xyz/",
+          "applicationCategory": "BusinessApplication"
+        }
+      ]
+    }
+  }
+  </script>
 
   <!-- iOS PWA Hooks -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -246,6 +296,52 @@
       color: rgba(0,229,255,0.5); font-family: var(--font-mono);
       pointer-events: none;
     }
+
+
+    .seo-summary-panel {
+      position: fixed;
+      top: max(env(safe-area-inset-top), 14px);
+      left: 16px;
+      width: min(340px, calc(100vw - 92px));
+      z-index: 220;
+      background: rgba(4, 7, 12, 0.84);
+      border: 1px solid rgba(0,229,255,0.16);
+      border-radius: 18px;
+      padding: 12px 14px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    }
+    .seo-summary-panel h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .seo-summary-panel p {
+      font-size: 11px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 8px;
+    }
+    .seo-summary-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .seo-summary-links a {
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(0,229,255,0.24);
+      padding-bottom: 1px;
+    }
+    .seo-summary-links a:hover {
+      color: #fff;
+      border-bottom-color: rgba(255,255,255,0.5);
+    }
   </style>
 </head>
 <body>
@@ -258,6 +354,15 @@
 
   <!-- APP COUNT -->
   <div id="app-count-badge"></div>
+
+  <section class="seo-summary-panel" aria-label="Daxini.space summary">
+    <h2>Daxini.space is a prompt app store and AI tool directory</h2>
+    <p>Discover LogicHub apps, ViaDecide tools, and free-tier community apps in one spatial app store. Open any app and the surrounding grid refreshes with related prompt apps and AI tools.</p>
+    <div class="seo-summary-links">
+      <a href="https://logichub.app/">Build apps in LogicHub</a>
+      <a href="https://daxini.space/?app=logichub">Open featured app route</a>
+    </div>
+  </section>
 
   <!-- WINDOW MANAGER -->
   <div id="window-manager"></div>
@@ -274,9 +379,9 @@
     <div class="room-node-app" id="node-8"></div>
 
     <div id="room-center">
-      <div id="room-title">DAXINI OS</div>
-      <div id="room-lore">Open an app to refresh the 8-room grid with related core and free-tier apps.</div>
-      <div class="os-badge">v2.2.0 · GANDHIDHAM</div>
+      <h1 id="room-title">DAXINI.SPACE</h1>
+      <div id="room-lore">Explore a prompt app store and AI tool directory where opening one app refreshes the 8-room grid with related core apps and free-tier LogicHub community apps.</div>
+      <div class="os-badge">Prompt app store · AI tool directory · free-tier community apps</div>
     </div>
   </div>
 
@@ -368,7 +473,7 @@
         icon: '⚡',
         url: 'https://logichub.app',
         status: 'live',
-        desc: 'Visual app builder for non-technical users',
+        desc: 'AI app builder for non-technical users who want prompt apps, workflow tools, and APK-ready prototypes',
         ownerType: 'mine',
         tier: 'core',
         tags: ['builder', 'app', 'workflow', 'logic', 'apk']
@@ -590,7 +695,7 @@
       STORE_STATE.focusSlug = null;
       STORE_STATE.roomApps = roomApps;
       DAXINI_GALAXY.name = 'Daxini Space';
-      DAXINI_GALAXY.lore = 'Open any app to turn the 8-room grid into a related-app route across ViaDecide tools and free-tier LogicHub apps.';
+      DAXINI_GALAXY.lore = 'Open any app to turn the 8-room grid into a related-app route across prompt apps, ViaDecide tools, and free-tier LogicHub community apps.';
       DAXINI_GALAXY.apps = roomApps;
       DAXINI_GALAXY.centerApp = null;
     }
@@ -606,7 +711,7 @@
       STORE_STATE.focusSlug = target.slug;
       STORE_STATE.roomApps = pickRoomApps(target);
       DAXINI_GALAXY.name = `${target.name} Hub`;
-      DAXINI_GALAXY.lore = `${target.desc} Around it: related apps from ViaDecide and the free-tier LogicHub community.`;
+      DAXINI_GALAXY.lore = `${target.desc} Around it: related prompt apps, AI tools, and free-tier LogicHub community apps.`;
       DAXINI_GALAXY.apps = STORE_STATE.roomApps;
       DAXINI_GALAXY.centerApp = target;
       if (options.syncRoute !== false) syncRoute(target.slug, options.replaceRoute === true);

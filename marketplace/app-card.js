@@ -18,8 +18,14 @@ function createAppCard(app, actions = {}) {
   title.style.margin = '0';
 
   const meta = document.createElement('p');
-  meta.textContent = `Creator: ${app.creator} • Category: ${app.category}`;
+  const createdAt = app.provenance && app.provenance.created_at ? app.provenance.created_at : (app.created_at || app.createdAt || 'unknown');
+  meta.textContent = `Creator: ${app.creator} • Created: ${createdAt} • Category: ${app.category}`;
   meta.style.cssText = 'margin:0;color:#9fb3d1;font-size:13px';
+
+  const provenance = document.createElement('p');
+  const versionCount = app.provenance && Array.isArray(app.provenance.version_history) ? app.provenance.version_history.length : 0;
+  provenance.textContent = `Version history: ${versionCount || 1} release${versionCount === 1 ? '' : 's'} • Remix lineage: ${app.provenance && app.provenance.remix_parent ? `asset → derived_from → ${app.provenance.remix_parent}` : 'Original asset'}`;
+  provenance.style.cssText = 'margin:0;color:#89a8d6;font-size:12px';
 
   const description = document.createElement('p');
   description.textContent = app.description || 'No description';
@@ -44,7 +50,7 @@ function createAppCard(app, actions = {}) {
   installButton.addEventListener('click', () => actions.onInstall && actions.onInstall(app));
 
   controls.append(launchButton, duplicateButton, installButton);
-  card.append(title, meta, description, controls);
+  card.append(title, meta, provenance, description, controls);
 
   return card;
 }

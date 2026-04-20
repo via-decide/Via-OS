@@ -65,6 +65,7 @@
 
   <!-- Vercel Web Analytics -->
   <script src="./reputation-engine.js"></script>
+  <script src="./assets/asset-model.js"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
@@ -759,7 +760,7 @@
 
     function createAppRecord(app = {}) {
       const slug = createSlug(app.slug || app.name || 'community-app');
-      return {
+      const record = {
         slug,
         name: app.name || slug.replace(/-/g, ' '),
         icon: app.icon || '✨',
@@ -768,10 +769,22 @@
         desc: app.desc || 'Community-made app published from LogicHub',
         ownerType: app.ownerType || 'community',
         tier: app.tier || 'free',
+        asset_type: app.asset_type || 'apps',
         tags: dedupeTags(app.tags || ['general']),
         source: app.source || (app.ownerType === 'mine' ? 'via-decide' : 'logichub'),
         createdAt: app.createdAt || new Date().toISOString()
       };
+      record.provenance = window.DaxiniAssetModel
+        ? window.DaxiniAssetModel.createAssetRecord({
+          asset_id: app.asset_id || record.slug,
+          creator_passport: app.creator_passport || record.ownerType,
+          created_at: app.created_at || record.createdAt,
+          repo_source: app.repo_source || record.source,
+          version_history: app.version_history,
+          remix_parent: app.remix_parent
+        })
+        : null;
+      return record;
     }
 
     function upsertApp(app) {
@@ -939,6 +952,13 @@
     };
 
     function inferCategory(app) {
+      const type = String(app.asset_type || '').toLowerCase();
+      if (type === 'apps') return 'Apps';
+      if (type === 'tools') return 'Tools';
+      if (type === 'games') return 'Games';
+      if (type === 'simulations') return 'Simulations';
+      if (type === 'documents') return 'Documents';
+      if (type === 'worlds') return 'Worlds';
       const tags = app.tags || [];
       if (tags.includes('game')) return 'Games';
       if (tags.includes('simulation') || tags.includes('space')) return 'Simulations';
@@ -970,11 +990,17 @@
       const detail = document.getElementById('marketplace-detail');
       if (!detail || !app) return;
       const related = relatedAppsFor(app).map(name => `<li>${name}</li>`).join('');
+      const provenance = app.provenance || (window.DaxiniAssetModel ? window.DaxiniAssetModel.createAssetRecord({ asset_id: app.slug, creator_passport: app.ownerType || app.creator, created_at: app.createdAt, repo_source: app.source }) : null);
+      const versions = provenance && provenance.version_history.length ? provenance.version_history.map((entry) => `<li>${entry.version || 'unknown'} · ${new Date(entry.timestamp || provenance.created_at).toISOString()}</li>`).join('') : '<li>v1.0.0 · initial publish</li>';
+      const lineage = provenance && provenance.remix_parent ? `asset → derived_from → ${provenance.remix_parent}` : 'Original asset (no remix parent)';
       detail.innerHTML = `
         <h3>${app.name}</h3>
         <div><strong>Launch URL:</strong> ${app.url}</div>
         <div><strong>What it does:</strong> ${app.desc || 'Utility app in the Daxini ecosystem.'}</div>
         <div><strong>How it was made:</strong> Built with browser-first logic and published through ${app.source === 'logichub' ? 'Logichub public feed' : 'Decide Engine core registry'}.</div>
+        <div><strong>Creator passport:</strong> ${provenance ? provenance.creator_passport : (app.ownerType || app.creator || 'community')} · <strong>Created:</strong> ${provenance ? provenance.created_at : (app.createdAt || 'unknown')}</div>
+        <div><strong>Version history:</strong><ul>${versions}</ul></div>
+        <div><strong>Remix lineage:</strong> ${lineage}</div>
         <div><strong>Install / use flow:</strong> Launch → duplicate in Logichub → open in workspace for saved access.</div>
         <div><strong>Related apps:</strong><ul>${related || '<li>No related apps found yet.</li>'}</ul></div>
       `;
@@ -1068,7 +1094,7 @@
         card.className = 'marketplace-card';
         card.innerHTML = `
           <h3>${app.icon} ${app.name}</h3>
-          <div class="marketplace-meta">type: ${inferType(app)} · creator: ${creatorLabel} · category: ${inferCategory(app)}${badgeText}</div>
+          <div class="marketplace-meta">type: ${inferType(app)} · creator: ${creatorLabel} · created: ${(app.provenance && app.provenance.created_at) || app.createdAt || 'unknown'} · category: ${inferCategory(app)}${badgeText}</div>
           <p>${app.desc || 'No description provided.'}</p>
           <div class="marketplace-actions">
             <button type="button" class="btn-launch">Launch</button>

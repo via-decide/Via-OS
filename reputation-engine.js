@@ -58,7 +58,17 @@
     if (!passportToken) return null;
     const key = profileKey(passportToken);
     const existing = safeParse(localStorage.getItem(key), null);
-    if (existing && existing.passport_token === passportToken) return existing;
+    if (existing && existing.passport_token === passportToken) {
+      if (!existing.wallet) {
+        existing.wallet = {
+          balance: 0,
+          total_earnings: 0,
+          updated_at: new Date().toISOString()
+        };
+        localStorage.setItem(key, JSON.stringify(existing));
+      }
+      return existing;
+    }
 
     const profile = {
       passport_token: passportToken,
@@ -68,6 +78,11 @@
         creators: {},
         stats: normalizeSignals({}),
         badge: badgeFromScore(0)
+      },
+      wallet: {
+        balance: 0,
+        total_earnings: 0,
+        updated_at: new Date().toISOString()
       }
     };
     localStorage.setItem(key, JSON.stringify(profile));
@@ -144,6 +159,24 @@
     return writePassportProfile(passportToken, profile);
   }
 
+  function updatePassportWallet(passportToken, amount) {
+    const profile = ensurePassportProfile(passportToken);
+    if (!profile) return null;
+
+    const delta = Number(amount || 0);
+    const wallet = profile.wallet || { balance: 0, total_earnings: 0 };
+    const nextBalance = Number(wallet.balance || 0) + delta;
+    const nextTotal = Number(wallet.total_earnings || 0) + (delta > 0 ? delta : 0);
+
+    profile.wallet = {
+      balance: Math.max(0, Number(nextBalance.toFixed(2))),
+      total_earnings: Number(nextTotal.toFixed(2)),
+      updated_at: new Date().toISOString()
+    };
+
+    return writePassportProfile(passportToken, profile);
+  }
+
   function recordSessionActivity(passportToken) {
     const profile = ensurePassportProfile(passportToken);
     if (!profile) return null;
@@ -189,6 +222,7 @@
     ensurePassportProfile,
     getPassportProfile,
     updatePassportReputation,
+    updatePassportWallet,
     recordSessionActivity,
     getCreatorReputation,
     badgeFromScore

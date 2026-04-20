@@ -33,10 +33,12 @@ border-radius:6px;
 <h2>Daxini Passport</h2>
 <p>Generate identity to access ecosystem modules</p>
 <p id="rep-summary"></p>
+<div id="creator-dashboard" style="margin-top:14px;width:min(680px,94vw);font-size:14px"></div>
 
 <button onclick="createPassport()">Generate Passport</button>
 
 <script src="../reputation-engine.js"></script>
+<script src="../earnings-ledger.js"></script>
 <script>
 function renderProfileSummary(token) {
   if (!window.DaxiniReputationEngine || !token) return;
@@ -44,7 +46,24 @@ function renderProfileSummary(token) {
   const repSummary = document.getElementById('rep-summary');
   if (!repSummary || !profile) return;
   const badge = profile.reputation.badge ? profile.reputation.badge.label : 'No badge yet';
-  repSummary.textContent = `Reputation: ${profile.reputation.overall} · Badge: ${badge}`;
+  const wallet = profile.wallet || { total_earnings: 0 };
+  repSummary.textContent = `Reputation: ${profile.reputation.overall} · Badge: ${badge} · Wallet: ${Number(wallet.total_earnings || 0).toFixed(2)}`;
+}
+
+
+function renderCreatorDashboard(token) {
+  const container = document.getElementById('creator-dashboard');
+  if (!container || !token || !window.DaxiniEarningsLedger) return;
+  const summary = window.DaxiniEarningsLedger.passportSummary(token);
+  const rows = summary.assets.map((item) => `<tr><td>${item.asset_id}</td><td>${item.downloads}</td><td>${item.earnings.toFixed(2)}</td></tr>`).join('');
+  container.innerHTML = `
+    <h3 style="margin:0 0 8px 0">Creator Dashboard</h3>
+    <div style="margin-bottom:8px">Wallet earnings: ${summary.total_earnings.toFixed(2)}</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr><th align="left">Asset</th><th align="left">Downloads</th><th align="left">Earnings</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="3">No earnings yet.</td></tr>'}</tbody>
+    </table>
+  `;
 }
 
 function createPassport(){
@@ -55,6 +74,8 @@ localStorage.setItem("passport_token",token)
 if (window.DaxiniReputationEngine) {
 window.DaxiniReputationEngine.ensurePassportProfile(token)
 }
+renderProfileSummary(token)
+renderCreatorDashboard(token)
 
 window.location.href="/"
 
@@ -64,6 +85,7 @@ const existingToken = localStorage.getItem("passport_token")
 if (existingToken && window.DaxiniReputationEngine) {
 window.DaxiniReputationEngine.ensurePassportProfile(existingToken)
 renderProfileSummary(existingToken)
+renderCreatorDashboard(existingToken)
 }
 
 </script>

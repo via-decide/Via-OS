@@ -65,6 +65,7 @@
 
   <!-- Vercel Web Analytics -->
   <script src="./reputation-engine.js"></script>
+  <script src="./earnings-ledger.js"></script>
   <script src="./assets/asset-model.js"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -986,6 +987,14 @@
         .map(item => item.candidate.name);
     }
 
+    function inferRevenueSource(app) {
+      const tags = (app && app.tags) || [];
+      const category = String(app && app.category || "").toLowerCase();
+      if (tags.includes('simulation') || tags.includes('space') || category.includes('simulation')) return 'simulation_worlds';
+      if (tags.includes('research') || category.includes('research')) return 'research_exports';
+      return 'app_sales';
+    }
+
     function renderMarketplaceDetails(app) {
       const detail = document.getElementById('marketplace-detail');
       if (!detail || !app) return;
@@ -1021,6 +1030,9 @@
           session_activity: 1
         });
       }
+      if (token && window.DaxiniEarningsLedger) {
+        window.DaxiniEarningsLedger.recordEarning(token, app.slug, inferRevenueSource(app));
+      }
       logDiag('WORKSPACE', `${app.name} saved to workspace.`);
     }
 
@@ -1034,6 +1046,9 @@
           forks: 1,
           session_activity: 1
         });
+      }
+      if (token && window.DaxiniEarningsLedger) {
+        window.DaxiniEarningsLedger.recordEarning(token, app.slug, 'template_licensing');
       }
       window.open(destination, '_blank', 'noopener');
     }
@@ -1112,6 +1127,9 @@
               downloads: 1,
               session_activity: 1
             });
+          }
+          if (token && window.DaxiniEarningsLedger) {
+            window.DaxiniEarningsLedger.recordEarning(token, app.slug, inferRevenueSource(app));
           }
           launchAppBySlug(app.slug);
         });

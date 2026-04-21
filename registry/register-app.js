@@ -1,6 +1,7 @@
 'use strict';
 
 const { AppRegistry, normalizeSlug } = require('./app-registry');
+const VersionTracker = require('../logichub/src/versioning/version-tracker');
 
 const ALLOWED_CATEGORIES = new Set([
   'research',
@@ -70,6 +71,7 @@ function createRegisterAppHandler(options = {}) {
         return true;
       }
 
+      const version = payload.version || '1.0.0';
       const updatedIndex = await registry.register({
         id: slug,
         slug,
@@ -79,8 +81,22 @@ function createRegisterAppHandler(options = {}) {
         category,
         runtime: 'edge-runtime',
         deployment_url: `/apps/${slug}`,
-        version: payload.version || '1.0'
+        version
       });
+
+      const tracker = new VersionTracker(slug);
+      await tracker.captureVersion({
+        code: payload.code || '',
+        config: payload.config || {},
+        assets: payload.assets || [],
+        dependencies: payload.dependencies || {}
+      }, {
+        creator: payload.creator,
+        changes: payload.changes || ['feature: Published app update'],
+        changelog: payload.changelog || `Published ${payload.name}` ,
+        version
+      });
+      await tracker.publishVersion(version);
 
       sendJson(res, 201, {
         success: true,

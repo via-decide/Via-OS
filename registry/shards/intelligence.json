@@ -1,0 +1,21 @@
+{
+  "category": "intelligence",
+  "apps": [
+    {
+      "slug": "zayvora-reasoner",
+      "name": "Zayvora Reasoner",
+      "icon": "🧠",
+      "url": "https://zayvora.ai",
+      "desc": "The core reasoning engine for complex architectural decisions.",
+      "tags": ["intelligence", "reasoning"]
+    },
+    {
+      "slug": "logic-gate-01",
+      "name": "Logic Gate 01",
+      "icon": "⛓️",
+      "url": "https://via-decide.github.io/LogicGate/",
+      "desc": "Visual logic flow analyzer.",
+      "tags": ["intelligence", "logic"]
+    }
+  ]
+}

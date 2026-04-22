@@ -132,16 +132,29 @@ const DaxiniUI = {
     return roomApps;
   },
 
-  handlePattern(detail) {
+  async handlePattern(detail) {
     const { seed, path } = detail;
     
-    // Tap Center: Home
+    // 1. Check for Namespace Shards
+    if (DaxiniRegistry.NAMESPACE_MAP[seed]) {
+      const shardApps = await DaxiniRegistry.fetchShard(seed);
+      if (shardApps) {
+        this.state.roomApps = {};
+        DaxiniRegistry.ROOM_POSITIONS.forEach((pos, i) => {
+          this.state.roomApps[pos] = shardApps[i] || null;
+        });
+        this.renderRoom();
+        return;
+      }
+    }
+
+    // 2. Tap Center: Home
     if (path.length === 1 && path[0] === 4) {
       this.closeActiveApp();
       return;
     }
 
-    // Swipe: center -> target
+    // 3. Swipe: center -> target
     if (path.length === 2 && path[0] === 4) {
       const target = path[1];
       if (this.state.roomApps[target]) {

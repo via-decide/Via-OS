@@ -119,11 +119,43 @@ function getAppBySlug(slug) {
   return APP_LIBRARY.find(app => app.slug === slug) || null;
 }
 
+const NAMESPACE_MAP = {
+  '0,3,6': 'infrastructure',
+  '1,4,7': 'intelligence',
+  '2,5,8': 'creativity',
+  '0,1,2': 'productivity',
+  '6,7,8': 'social',
+  '0,4,8': 'experimental'
+};
+
+async function fetchShard(seed) {
+  const category = NAMESPACE_MAP[seed];
+  if (!category) return null;
+
+  console.log(`[SHARDER] Resolving namespace: ${category} for seed: ${seed}`);
+  
+  // In a real decentralized setup, this would be an IPFS hash resolution.
+  // For now, we simulate by fetching a category-specific registry shard.
+  try {
+    const response = await fetch(`./registry/shards/${category}.json`);
+    if (response.ok) {
+      const shardData = await response.json();
+      shardData.apps.forEach(app => upsertApp(app));
+      return shardData.apps;
+    }
+  } catch (e) {
+    console.warn(`[SHARDER] Shard ${category} not found or offline.`);
+  }
+  return null;
+}
+
 window.DaxiniRegistry = {
   APP_LIBRARY,
   CORE_APPS,
   ROOM_POSITIONS,
   DEFAULT_ROOM_SLUGS,
+  NAMESPACE_MAP,
   upsertApp,
-  getAppBySlug
+  getAppBySlug,
+  fetchShard
 };

@@ -8,7 +8,24 @@ const DaxiniUI = {
   state: {
     focusSlug: null,
     roomApps: {},
-    communityLoaded: false
+    communityLoaded: false,
+    isLoadingShard: false,
+    history: []
+  },
+
+  /**
+   * ANTIGRAVITY AUDIT: Export a full snapshot of the OS state
+   */
+  getSnapshot() {
+    const snapshot = {
+      timestamp: new Date().toISOString(),
+      os_state: this.state,
+      registry_size: DaxiniRegistry.APP_LIBRARY.length,
+      namespaces: Object.keys(DaxiniRegistry.NAMESPACE_MAP),
+      storage: { ...localStorage }
+    };
+    console.log('[AUDIT] Sovereign State Snapshot:', snapshot);
+    return snapshot;
   },
 
   async init() {
@@ -45,6 +62,16 @@ const DaxiniUI = {
     } else {
       this.closeActiveApp();
     }
+  },
+
+  renderLoadingState() {
+    DaxiniRegistry.ROOM_POSITIONS.forEach(pos => {
+      const nodeEl = document.getElementById(`node-${pos}`);
+      if (nodeEl) {
+        nodeEl.innerHTML = `<div class="neural-pulse"></div>`;
+        nodeEl.style.display = 'flex';
+      }
+    });
   },
 
   renderRoom() {
@@ -160,7 +187,12 @@ const DaxiniUI = {
     
     // 1. Check for Namespace Shards
     if (DaxiniRegistry.NAMESPACE_MAP[seed]) {
+      this.state.isLoadingShard = true;
+      this.renderLoadingState();
+      
       const shardApps = await DaxiniRegistry.fetchShard(seed);
+      this.state.isLoadingShard = false;
+      
       if (shardApps) {
         this.state.roomApps = {};
         DaxiniRegistry.ROOM_POSITIONS.forEach((pos, i) => {

@@ -132,19 +132,35 @@ async function fetchShard(seed) {
   const category = NAMESPACE_MAP[seed];
   if (!category) return null;
 
-  console.log(`[SHARDER] Resolving namespace: ${category} for seed: ${seed}`);
+  console.log(`[SHARDER] Resolving namespace: ${category}...`);
   
-  // In a real decentralized setup, this would be an IPFS hash resolution.
-  // For now, we simulate by fetching a category-specific registry shard.
+  // ANTIGRAVITY CIRCUIT BREAKER: 5s timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
   try {
-    const response = await fetch(`./registry/shards/${category}.json`);
+    const response = await fetch(`./registry/shards/${category}.json`, { 
+      signal: controller.signal,
+      cache: 'no-store' 
+    });
+    
+    clearTimeout(timeoutId);
+
     if (response.ok) {
       const shardData = await response.json();
-      shardData.apps.forEach(app => upsertApp(app));
-      return shardData.apps;
+      if (shardData.apps) {
+        shardData.apps.forEach(app => upsertApp(app));
+        return shardData.apps;
+      }
     }
   } catch (e) {
-    console.warn(`[SHARDER] Shard ${category} not found or offline.`);
+    if (e.name === 'AbortError') {
+      console.error(`[SHARDER] Shard ${category} timeout (Offline or Heavy Load)`);
+    } else {
+      console.warn(`[SHARDER] Shard ${category} unavailable:`, e);
+    }
+  } finally {
+    clearTimeout(timeoutId);
   }
   return null;
 }

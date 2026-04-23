@@ -60,11 +60,17 @@ class OSShell {
     setInterval(() => this.updateClock(), 60000);
     
     document.getElementById('os-clock').onclick = () => this.toggleControlCenter();
-    this.initOnboarding();
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.initOnboarding());
+    } else {
+      this.initOnboarding();
+    }
   }
 
   initOnboarding() {
     if (localStorage.getItem('os_onboarded')) return;
+    console.log('[SHELL] Initializing Onboarding...');
 
     const overlay = document.createElement('div');
     overlay.id = 'os-onboarding';

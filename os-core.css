@@ -523,3 +523,9 @@ body::after {
 }
 .zv-auth-btn:active { transform: scale(0.98); }
 .zv-auth-status { font-size: 10px; color: #ff3366; margin-top: 12px; min-height: 15px; }
+
+#start-layer{position:fixed;top:74px;left:50%;transform:translateX(-50%);width:min(980px,94vw);z-index:9998;padding:18px;display:flex;flex-direction:column;gap:10px;max-height:62vh;overflow:auto}
+.cta-row,.filter-row{display:flex;gap:8px;flex-wrap:wrap}.cta-row button,.filter-row button{background:rgba(0,255,150,.12);color:#fff;border:1px solid var(--glass-border);padding:8px 12px;border-radius:999px;cursor:pointer}
+#app-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.app-card{border:1px solid var(--glass-border);border-radius:12px;padding:10px;background:rgba(255,255,255,.03);cursor:pointer}.app-card small{opacity:.75}.tag{font-size:10px;color:var(--matrix-green)}
+#proof-block{border-top:1px solid var(--glass-border);padding-top:8px}.sys-philosophy{order:9;opacity:.75;font-size:12px}
+@media (max-width:800px){#start-layer{top:60px;max-height:58vh}#os-minimap{bottom:10px;transform:translateX(-50%) scale(.82)}}

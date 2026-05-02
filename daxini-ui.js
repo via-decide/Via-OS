@@ -219,4 +219,9 @@ const DaxiniUI = {
   }
 };
 
+
+DaxiniUI.mapTag=a=>/study|education/i.test((a.tags||[]).join(','))?'learning':/infra|ops|workflow|company|hub/i.test((a.tags||[]).join(','))?'infra':/experiment|game|atlas/i.test((a.tags||[]).join(','))?'experiments':'ai';
+DaxiniUI.renderStart=function(f='all'){const g=document.getElementById('app-grid'); if(!g) return; g.innerHTML=DaxiniRegistry.APP_LIBRARY.filter(a=>f==='all'||DaxiniUI.mapTag(a)===f).slice(0,12).map(a=>`<article class="app-card" data-slug="${a.slug}"><b>${a.name}</b><small>${(a.desc||'').slice(0,70)}</small><span class="tag">${DaxiniUI.mapTag(a)}</span></article>`).join(''); g.querySelectorAll('.app-card').forEach(c=>c.onclick=()=>DaxiniUI.launchAppBySlug(c.dataset.slug));};
+window.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>DaxiniUI.launchAppBySlug(b.dataset.quick)); document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>DaxiniUI.renderStart(b.dataset.filter)); DaxiniUI.renderStart();});
+
 document.addEventListener('DOMContentLoaded', () => DaxiniUI.init());
